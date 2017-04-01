@@ -5,7 +5,7 @@ import java.net.Socket;
 
 import static java.lang.Thread.sleep;
 
-public class ChatClient {
+public class TestClient {
 
     private static Socket openSocket(String name, int port) {
         Socket MyClient;
@@ -55,7 +55,26 @@ public class ChatClient {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-
+        System.out.println("Test Client Awake");
+        Socket myConnection = openSocket("localhost", 3456);
+        if(myConnection != null) { //TODO tidy
+            System.out.println("Connection established");
+            DataInputStream ins = openInputStream(myConnection);
+            PrintStream outs = openOutputStream(myConnection);
+            if(ins != null && outs != null) {  //TODO tidy
+                System.out.println("I/O streams active.");
+//                outs.append("Hello server :)");
+//                System.out.println("Sent message to server");
+                sleep(10000);
+//                System.out.println("Server says:");
+//                System.out.println("> "+ins.readUTF());
+                System.out.println("Closing connection...");
+                closeConnection(myConnection, ins, outs);
+            } else {
+                System.out.println("Could not activate I/O streams.");
+            }
+        } else {
+            System.out.println("Could not connection to server");
+        }
     }
-
 }
