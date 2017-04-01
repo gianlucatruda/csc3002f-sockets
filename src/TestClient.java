@@ -4,10 +4,7 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Scanner;
 
-import static java.lang.Thread.sleep;
-
 public class TestClient {
-
     private static Socket openSocket(String name, int port) {
         Socket MyClient;
         try {
@@ -56,8 +53,14 @@ public class TestClient {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
+        int PORTNUM;
+        if(args.length > 0) {
+            PORTNUM = Integer.parseInt(args[0]);
+        } else {
+            PORTNUM = 4001;
+        }
         System.out.println("Test Client Awake");
-        Socket myConnection = openSocket("localhost", 3456);
+        Socket myConnection = openSocket("localhost", PORTNUM);
         if(myConnection != null) { //TODO tidy
             System.out.println("Connection established");
             DataInputStream ins = openInputStream(myConnection);
