@@ -66,8 +66,6 @@ public class TestClient {
             if(ins != null && outs != null) {  //TODO tidy
                 System.out.println("I/O streams active.");
 
-                BufferedReader br = new BufferedReader(new InputStreamReader(ins));
-
                 System.out.print("> ");
                 Scanner myScan = new Scanner(System.in);
                 while(myScan.hasNextLine()) {
@@ -75,7 +73,14 @@ public class TestClient {
                     outs.println(msg);
                     outs.flush();
 
-                    System.out.print(">");
+                    // Reads in undelivered messages
+                    BufferedReader br = new BufferedReader(new InputStreamReader(ins));
+                    String readMsg = null;
+                    while((readMsg = br.readLine()) != null) {
+                        System.out.println(readMsg);
+                    }
+
+                    System.out.print("> ");
                 }
                 System.out.println("Closing connection...");
                 closeConnection(myConnection, ins, outs);
