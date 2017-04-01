@@ -2,6 +2,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.Scanner;
 
 import static java.lang.Thread.sleep;
 
@@ -63,11 +64,12 @@ public class TestClient {
             PrintStream outs = openOutputStream(myConnection);
             if(ins != null && outs != null) {  //TODO tidy
                 System.out.println("I/O streams active.");
-//                outs.append("Hello server :)");
-//                System.out.println("Sent message to server");
-                sleep(10000);
-//                System.out.println("Server says:");
-//                System.out.println("> "+ins.readUTF());
+                Scanner myScan = new Scanner(System.in);
+                while(myScan.hasNextLine()) {
+                    String msg = myScan.nextLine();
+                    outs.println(msg);
+                    outs.flush();
+                }
                 System.out.println("Closing connection...");
                 closeConnection(myConnection, ins, outs);
             } else {

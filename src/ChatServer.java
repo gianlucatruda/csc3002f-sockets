@@ -1,8 +1,8 @@
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class ChatServer {
 
@@ -85,10 +85,13 @@ public class ChatServer {
                 DataInputStream in1 = openInputStream(conn1);
                 PrintStream out1 = openOutputStream(conn1);
                 if(in1 != null && out1 != null) { //TODO tidy
-                    out1.append("Hello client :P");
-                    System.out.println("Sent a message to the client.");
-//                    System.out.println("Client says:");
-//                    System.out.println("> "+in1.readUTF());
+
+                    BufferedReader br = new BufferedReader(new InputStreamReader(in1));
+                    String msg = null;
+                    while((msg = br.readLine()) != null) {
+                        System.out.println("Client:\t"+msg);
+                    }
+
                     closeSocket(conn1, in1, out1);
                     System.out.println("Connection to client was closed.");
                 } else {
