@@ -1,5 +1,3 @@
-import com.sun.tools.doclets.formats.html.SourceToHTMLConverter;
-
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -8,10 +6,10 @@ import java.net.Socket;
 
 public class ChatServer {
 
-    static int PORTNUM = 1024;
+    static int PORTNUM = 3456;
 
 
-    private ServerSocket listen(int port) {
+    private static ServerSocket listen(int port) {
         // Creating the server socket
         ServerSocket MyService;
         try {
@@ -24,7 +22,7 @@ public class ChatServer {
         }
     }
 
-    private Socket createSocket(ServerSocket service) {
+    private static Socket createSocket(ServerSocket service) {
         // server creates a client socket to communicate with the client
         Socket clientSocket = null;
         try {
@@ -38,7 +36,7 @@ public class ChatServer {
 
     }
 
-    private void closeSocket(Socket clientSocket, DataInputStream input, PrintStream output) {
+    private static void closeSocket(Socket clientSocket, DataInputStream input, PrintStream output) {
         // close the input and output streams and the socket
         try {
             output.close ();
@@ -50,7 +48,7 @@ public class ChatServer {
         }
     }
 
-    private DataInputStream openInputStream(Socket clientSocket) {
+    private static DataInputStream openInputStream(Socket clientSocket) {
         // DataInputStream is used to receive inputs from the client
         DataInputStream input;
         try {
@@ -63,7 +61,7 @@ public class ChatServer {
         }
     }
 
-    private PrintStream openOutputStream(Socket clientSocket) {
+    private static PrintStream openOutputStream(Socket clientSocket) {
         // PrintStream used to send data to client
         PrintStream output;
         try {
@@ -76,9 +74,32 @@ public class ChatServer {
         }
     }
 
-
-    public static void main(String[] args) {
-        System.out.println("hello world");
+    public static void main(String[] args) throws IOException {
+        System.out.println("Server awake.");
+        ServerSocket listener = listen(PORTNUM);
+        if(listener != null) { //TODO tidy
+            System.out.println("Listening on port...");
+            Socket conn1 = createSocket(listener);
+            if(conn1 != null) { //TODO tidy
+                System.out.println("New connection!");
+                DataInputStream in1 = openInputStream(conn1);
+                PrintStream out1 = openOutputStream(conn1);
+                if(in1 != null && out1 != null) { //TODO tidy
+                    out1.append("Hello client :P");
+                    System.out.println("Sent a message to the client.");
+//                    System.out.println("Client says:");
+//                    System.out.println("> "+in1.readUTF());
+                    closeSocket(conn1, in1, out1);
+                    System.out.println("Connection to client was closed.");
+                } else {
+                    System.out.println("Could not open connections");
+                }
+            } else {
+                System.out.println("no connection");
+            }
+        } else {
+            System.out.println("Could not listen on port!");
+        }
     }
 
 
