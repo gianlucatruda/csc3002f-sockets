@@ -1,6 +1,4 @@
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -67,11 +65,17 @@ public class TestClient {
             PrintStream outs = openOutputStream(myConnection);
             if(ins != null && outs != null) {  //TODO tidy
                 System.out.println("I/O streams active.");
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(ins));
+
+                System.out.print("> ");
                 Scanner myScan = new Scanner(System.in);
                 while(myScan.hasNextLine()) {
                     String msg = myScan.nextLine();
                     outs.println(msg);
                     outs.flush();
+
+                    System.out.print(">");
                 }
                 System.out.println("Closing connection...");
                 closeConnection(myConnection, ins, outs);

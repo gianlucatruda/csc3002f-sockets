@@ -3,6 +3,7 @@ import javax.sound.sampled.Port;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class ChatServerThread extends Thread {
@@ -10,10 +11,12 @@ public class ChatServerThread extends Thread {
     private int PORTNUM = 3456;
     private String NAME = "Alice";
     private String clientName = String.valueOf(Math.random()).substring(2,6);
+    private ArrayList<String> unreads;
 
     public ChatServerThread(String name, int port) {
         PORTNUM = port;
         NAME = name;
+        unreads = new ArrayList<String>();
     }
 
     public ChatServerThread(){};
@@ -83,6 +86,18 @@ public class ChatServerThread extends Thread {
         }
     }
 
+    public ArrayList<String> getUndeliveredMessages() {
+        if(unreads.size() > 0) {
+            ArrayList<String> out = new ArrayList<>();
+            for(String s: unreads) {
+                out.add(s);
+            }
+            unreads.clear();
+            return out;
+        }
+        return new ArrayList<String>();
+    }
+
     public void run() {
         System.out.println("Init server -\t"+NAME+":"+PORTNUM);
         ServerSocket listenSoc = listen(PORTNUM);
@@ -92,11 +107,16 @@ public class ChatServerThread extends Thread {
 
         if(inStream != null && outStream != null && connection != null) {
             System.out.println("'"+clientName+"' connected to "+NAME);
+
+            outStream.println("Welcome to the chat room!");
+            outStream.flush();
+
             BufferedReader br = new BufferedReader(new InputStreamReader(inStream));
             String msg = null;
             try {
                 while((msg = br.readLine()) != null) {
                     System.out.println("> '"+clientName+"' to "+NAME+":\t"+msg);
+                    unreads.add(clientName+": "+msg);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
