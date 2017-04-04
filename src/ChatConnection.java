@@ -111,24 +111,15 @@ public class ChatConnection extends Thread {
         if(inStream != null && outStream != null && connection != null) {
             System.out.println("'"+clientName+"' connected to "+NAME);
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(inStream));
-            String msg = null;
-            try {
-                while((msg = br.readLine()) != null) {
-                    System.out.println(clientName+": "+msg);
-                    unreads.add(clientName+": "+msg);
+            // ChatClientChannel threads
+            ChatServerChannel inStreamer = new ChatServerChannel(inStream, unreads);
+            ChatServerChannel outStreamer = new ChatServerChannel(outStream, unreads);
+            inStreamer.start();
+            outStreamer.start();
 
-                    for(String s: messages) {
-                        outStream.println(s);
-                    }
-                    outStream.flush();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            closeSocket(connection, inStream, outStream);
-            System.out.println(NAME+": Connection to '"+clientName+"' was closed.");
+            //TODO implement connection closing
+            //closeSocket(connection, inStream, outStream);
+            //System.out.println(NAME+": Connection to '"+clientName+"' was closed.");
 
         } else {
             System.out.println(NAME+": Could not establish a proper connection.");
