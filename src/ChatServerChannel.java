@@ -7,19 +7,17 @@ public class ChatServerChannel extends Thread {
     ArrayList<String> msgs;
     DataInputStream dis = null;
     PrintStream ps = null;
-    String clientName = "ANON";
     ChatConnection[] connections;
+    public String clientName = "ANON.";
 
-    public ChatServerChannel(DataInputStream stream, ChatConnection[] conns, String client) {
+    public ChatServerChannel(DataInputStream stream, ChatConnection[] conns) {
         dis = stream;
         connections = conns;
-        clientName = client;
     }
 
-    public ChatServerChannel(PrintStream stream, ChatConnection[] conns, String client) {
+    public ChatServerChannel(PrintStream stream, ChatConnection[] conns) {
         ps = stream;
         connections = conns;
-        clientName = client;
     }
 
     public void run() {
@@ -33,12 +31,36 @@ public class ChatServerChannel extends Thread {
             String readMsg = null;
             try {
                 while((readMsg = br.readLine()) != null) {
-                    for(ChatConnection c : connections) {
-                        if (c != null && !c.clientName.equals(clientName)) {
-                            if(c.outStream != null) {
-                                c.outStream.println(clientName+": "+readMsg);
-                            }
+                    // If the <name> tag is used
+                    if(readMsg.startsWith("<name>")) {
+                        String oldName = clientName;
+                        clientName = readMsg.substring(6,readMsg.length());
+                        for(ChatConnection c : connections) {
+                            if (c != null) {
+                                if(c.outStream != null) {
+                                    if(!c.getClientName().equals(clientName)) {
+                                        c.outStream.println("> '"+oldName+"' changed name to '"+clientName+"'");
+                                    }
+                                }
 
+                            }
+                        }
+                    }
+                    // If the <img> tag is used
+                    else if (readMsg.startsWith("<img>")) {
+
+                    }
+                    // Regular message
+                    else {
+                        for(ChatConnection c : connections) {
+                            if (c != null) {
+                                if(c.outStream != null) {
+                                    if(!c.getClientName().equals(clientName)) {
+                                        c.outStream.println(clientName+": "+readMsg);
+                                    }
+                                }
+
+                            }
                         }
                     }
 

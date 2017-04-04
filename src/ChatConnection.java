@@ -11,11 +11,13 @@ public class ChatConnection extends Thread {
 
     private int PORTNUM = 3456;
     private String NAME = "Alice";
-    public String clientName = "u"+String.valueOf(Math.random()).substring(2,6);
     ChatConnection[] connections;
 
     DataInputStream inStream;
     PrintStream outStream;
+
+    private ChatServerChannel inStreamer;
+    private ChatServerChannel outStreamer;
 
     public ChatConnection(String name, int port, ChatConnection[] conns, ArrayList<String> msgs) {
         PORTNUM = port;
@@ -88,6 +90,10 @@ public class ChatConnection extends Thread {
         }
     }
 
+    public String getClientName() {
+        return inStreamer.clientName;
+    }
+
     public void run() {
         System.out.println("Init. server -\t"+NAME+":"+PORTNUM);
         ServerSocket listenSoc = listen(PORTNUM);
@@ -96,18 +102,19 @@ public class ChatConnection extends Thread {
         outStream = openOutputStream(connection);
 
         if(inStream != null && outStream != null && connection != null) {
-            System.out.println("> '"+clientName+"' connected to "+NAME);
 
             // ChatClientChannel threads
-            ChatServerChannel inStreamer = new ChatServerChannel(inStream, connections, clientName);
-            ChatServerChannel outStreamer = new ChatServerChannel(outStream,  connections, clientName);
+            inStreamer = new ChatServerChannel(inStream, connections);
+            outStreamer = new ChatServerChannel(outStream,  connections);
             inStreamer.start();
             outStreamer.start();
+
+            System.out.println("> '"+inStreamer.clientName+"' connected to "+NAME);
 
             for(ChatConnection c : connections) {
                 if (c != null && c != this) {
                     if(c.outStream != null) {
-                        c.outStream.println("> '"+clientName+"' connected to "+NAME);
+                        c.outStream.println("> '"+inStreamer.clientName+"' connected to "+NAME);
                     }
 
                 }
@@ -116,7 +123,7 @@ public class ChatConnection extends Thread {
             for(ChatConnection c : connections) {
                 if (c != null && c != this) {
                     if(c.outStream != null) {
-                        this.outStream.println("> '"+c.clientName+"' is currently online.");
+                        this.outStream.println("> '"+c.getClientName()+"' is currently online.");
                     }
 
                 }
