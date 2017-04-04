@@ -51,24 +51,27 @@ public class ChatClient {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        int PORTNUM;
-        if(args.length > 0) {
+        int PORTNUM = 4001;
+        String userName = "user"+String.valueOf(Math.random()).substring(2,6);
+        if(args.length == 2) {
             PORTNUM = Integer.parseInt(args[0]);
-        } else {
-            PORTNUM = 4001;
+            userName = args[1];
         }
-        System.out.println("Test Client Awake");
+        else if (args.length == 1) {
+            PORTNUM = Integer.parseInt(args[0]);
+        }
+        System.out.println("Client Awake");
         Socket myConnection = openSocket("localhost", PORTNUM);
         if(myConnection != null) { //TODO tidy
             System.out.println("Connection established");
             DataInputStream ins = openInputStream(myConnection);
             PrintStream outs = openOutputStream(myConnection);
             if(ins != null && outs != null) {  //TODO tidy
-                System.out.println("I/O streams active.");
+                //System.out.println("I/O streams active.");
 
                 // ChatClientChannel threads
-                ChatClientChannel inStreamer = new ChatClientChannel(ins);
-                ChatClientChannel outStreamer = new ChatClientChannel(outs);
+                ChatClientChannel inStreamer = new ChatClientChannel(ins, userName);
+                ChatClientChannel outStreamer = new ChatClientChannel(outs, userName);
                 inStreamer.start();
                 outStreamer.start();
 

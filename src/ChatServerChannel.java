@@ -7,19 +7,19 @@ public class ChatServerChannel extends Thread {
     ArrayList<String> msgs;
     DataInputStream dis = null;
     PrintStream ps = null;
-    String clientName = "CLIENT";
+    String clientName = "ANON";
     ChatConnection[] connections;
 
-    public ChatServerChannel(DataInputStream stream, ArrayList<String> messages, ChatConnection[] conns) {
+    public ChatServerChannel(DataInputStream stream, ChatConnection[] conns, String client) {
         dis = stream;
-        msgs = messages;
         connections = conns;
+        clientName = client;
     }
 
-    public ChatServerChannel(PrintStream stream, ArrayList<String> messages, ChatConnection[] conns) {
+    public ChatServerChannel(PrintStream stream, ChatConnection[] conns, String client) {
         ps = stream;
-        msgs = messages;
         connections = conns;
+        clientName = client;
     }
 
     public void run() {
@@ -34,7 +34,7 @@ public class ChatServerChannel extends Thread {
             try {
                 while((readMsg = br.readLine()) != null) {
                     for(ChatConnection c : connections) {
-                        if (c != null) {
+                        if (c != null && !c.clientName.equals(clientName)) {
                             if(c.outStream != null) {
                                 c.outStream.println(clientName+": "+readMsg);
                             }

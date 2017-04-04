@@ -11,9 +11,7 @@ public class ChatConnection extends Thread {
 
     private int PORTNUM = 3456;
     private String NAME = "Alice";
-    private String clientName = String.valueOf(Math.random()).substring(2,6);
-    private ArrayList<String> unreads;
-    private ArrayList<String> messages;
+    public String clientName = "u"+String.valueOf(Math.random()).substring(2,6);
     ChatConnection[] connections;
 
     DataInputStream inStream;
@@ -22,8 +20,6 @@ public class ChatConnection extends Thread {
     public ChatConnection(String name, int port, ChatConnection[] conns, ArrayList<String> msgs) {
         PORTNUM = port;
         NAME = name;
-        unreads = new ArrayList<String>();
-        messages = msgs;
         connections = conns;
     }
 
@@ -92,43 +88,41 @@ public class ChatConnection extends Thread {
         }
     }
 
-    public ArrayList<String> getUndeliveredMessages() {
-        if(unreads.size() > 0) {
-            ArrayList<String> out = new ArrayList<>();
-            for(String s: unreads) {
-                out.add(s);
-            }
-            unreads.clear();
-            return out;
-        }
-        return new ArrayList<String>();
-    }
-
     public void run() {
-        System.out.println("Init server -\t"+NAME+":"+PORTNUM);
+        System.out.println("Init. server -\t"+NAME+":"+PORTNUM);
         ServerSocket listenSoc = listen(PORTNUM);
         Socket connection = createSocket(listenSoc);
         inStream = openInputStream(connection);
         outStream = openOutputStream(connection);
 
         if(inStream != null && outStream != null && connection != null) {
-            System.out.println("'"+clientName+"' connected to "+NAME);
+            System.out.println("> '"+clientName+"' connected to "+NAME);
 
             // ChatClientChannel threads
-            ChatServerChannel inStreamer = new ChatServerChannel(inStream, unreads, connections);
-            ChatServerChannel outStreamer = new ChatServerChannel(outStream, unreads, connections);
+            ChatServerChannel inStreamer = new ChatServerChannel(inStream, connections, clientName);
+            ChatServerChannel outStreamer = new ChatServerChannel(outStream,  connections, clientName);
             inStreamer.start();
             outStreamer.start();
 
             for(ChatConnection c : connections) {
                 if (c != null && c != this) {
                     if(c.outStream != null) {
-                        c.outStream.println("'"+clientName+"' connected to "+NAME);
+                        c.outStream.println("> '"+clientName+"' connected to "+NAME);
                     }
 
                 }
             }
-            
+
+            for(ChatConnection c : connections) {
+                if (c != null && c != this) {
+                    if(c.outStream != null) {
+                        this.outStream.println("> '"+c.clientName+"' is currently online.");
+                    }
+
+                }
+            }
+
+
             //TODO implement connection closing
             //closeSocket(connection, inStream, outStream);
             //System.out.println(NAME+": Connection to '"+clientName+"' was closed.");
