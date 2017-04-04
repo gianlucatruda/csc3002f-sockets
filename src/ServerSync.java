@@ -45,8 +45,8 @@ private static Socket clientSocket = null;
 
 class cThreads extends Thread {
 
-  private DataInputStream is = null;
-  private PrintStream os = null;
+  private DataInputStream ins = null;
+  private PrintStream outs = null;
   private Socket clientSocket = null;
   private final cThreads[] threads;
   private int max;
@@ -65,11 +65,11 @@ class cThreads extends Thread {
       ins =new DataInputStream(clientSocket.getInputStream());
       outs =new PrintStream(clientSocket.getOutputStream());
       outs.println("Enter your name.");
-      String name = is.readLine().trim();
+      String name = ins.readLine().trim();
       outs.println("Howdy," + name + " and welcome to our groovy chat room.\nTo leave enter /quit in a new line");
       for (int i = 0; i < max; i++) {//send to all others
         if (threads[i] != null && threads[i] != this) {
-          threads[i].os.println("*** A new user " + name
+          threads[i].outs.println("*** A new user " + name
               + " entered the chat room !!! ***");
         }
       }
@@ -86,11 +86,11 @@ class cThreads extends Thread {
       }
       for (int i = 0; i < max; i++) {
         if (threads[i] != null && threads[i] != this) {
-          threads[i].os.println("*** The user " + name
+          threads[i].outs.println("*** The user " + name
               + " is leaving the chat room !!! ***");
         }
       }
-      os.println("*** Bye " + name + " ***");
+      outs.println("*** Bye " + name + " ***");
 
       /*
        * Clean up. Set the current thread variable to null so that a new client
@@ -105,8 +105,8 @@ class cThreads extends Thread {
       /*
        * Close the output stream, close the input stream, close the socket.
        */
-      is.close();
-      os.close();
+      ins.close();
+      outs.close();
       clientSocket.close();
     } catch (IOException e) {
     }
