@@ -2,24 +2,28 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.io.BufferedInputStream;
 
 import static java.lang.Thread.sleep;
 
 public class ChatClient {
 
-    private static Socket openSocket(String name, int port) {
-        Socket MyClient;
+    public static Socket openSocket(String name, int port) { //create socket
+      //name=name server and port no of server
+        Socket MyClient; //creating socket
         try {
             MyClient = new Socket(name, port);
             return MyClient;
         }
         catch (IOException e) {
             System.out.println(e);
+            System.out.println("dont know host");
             return null;
         }
     }
 
-    private static DataInputStream openInputStream(Socket myClient) {
+    public static DataInputStream openInputStream(Socket myClient) {
+      //receive messages
         DataInputStream input;
         try {
             input = new DataInputStream(myClient.getInputStream());
@@ -29,9 +33,10 @@ public class ChatClient {
             System.out.println(e);
             return null;
         }
+
     }
 
-    private static PrintStream openOutputStream(Socket myClient) {
+    public static PrintStream openOutputStream(Socket myClient) {
         PrintStream output;
         try {
             output = new PrintStream(myClient.getOutputStream());
@@ -43,7 +48,7 @@ public class ChatClient {
         }
     }
 
-    private static void closeConnection(Socket myClient, DataInputStream input, PrintStream output) {
+    public static void closeConnection(Socket myClient, DataInputStream input, PrintStream output) {
         try {
             output.close();
             input.close();

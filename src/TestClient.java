@@ -1,8 +1,12 @@
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.Socket;
-import java.util.Scanner;
+
+import static java.lang.Thread.sleep;
 
 public class TestClient {
+
     private static Socket openSocket(String name, int port) {
         Socket MyClient;
         try {
@@ -51,37 +55,19 @@ public class TestClient {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        int PORTNUM;
-        if(args.length > 0) {
-            PORTNUM = Integer.parseInt(args[0]);
-        } else {
-            PORTNUM = 4001;
-        }
         System.out.println("Test Client Awake");
-        Socket myConnection = openSocket("localhost", PORTNUM);
+        Socket myConnection = openSocket("localhost", 3456);
         if(myConnection != null) { //TODO tidy
             System.out.println("Connection established");
             DataInputStream ins = openInputStream(myConnection);
             PrintStream outs = openOutputStream(myConnection);
             if(ins != null && outs != null) {  //TODO tidy
                 System.out.println("I/O streams active.");
-
-                System.out.print("> ");
-                Scanner myScan = new Scanner(System.in);
-                while(myScan.hasNextLine()) {
-                    String msg = myScan.nextLine();
-                    outs.println(msg);
-                    outs.flush();
-
-                    // Reads in undelivered messages
-                    BufferedReader br = new BufferedReader(new InputStreamReader(ins));
-                    String readMsg = null;
-                    while((readMsg = br.readLine()) != null) {
-                        System.out.println(readMsg);
-                    }
-
-                    System.out.print("> ");
-                }
+//                outs.append("Hello server :)");
+//                System.out.println("Sent message to server");
+                sleep(10000);
+//                System.out.println("Server says:");
+//                System.out.println("> "+ins.readUTF());
                 System.out.println("Closing connection...");
                 closeConnection(myConnection, ins, outs);
             } else {
