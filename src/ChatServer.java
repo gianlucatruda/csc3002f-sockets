@@ -3,7 +3,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.Thread.sleep;
 
-public class ChatServerHandler {
+public class ChatServer {
 
     public static void main(String[] args) throws InterruptedException {
         ArrayList<String> messages = new ArrayList<String>();

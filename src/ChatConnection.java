@@ -30,7 +30,7 @@ public class ChatConnection extends Thread {
         ServerSocket MyService;
         try {
             MyService = new ServerSocket(port);
-            System.out.println(NAME+" is listening on port "+PORTNUM);
+            //System.out.println(NAME+" is listening on port "+PORTNUM);
             return MyService;
         } catch (IOException e) {
             System.out.println(e);
@@ -109,12 +109,12 @@ public class ChatConnection extends Thread {
             inStreamer.start();
             outStreamer.start();
 
-            System.out.println("> '"+inStreamer.clientName+"' connected to "+NAME);
+            System.out.println("> '"+inStreamer.clientName+"' connected.");
 
             for(ChatConnection c : connections) {
                 if (c != null && c != this) {
                     if(c.outStream != null) {
-                        c.outStream.println("> '"+inStreamer.clientName+"' connected to "+NAME);
+                        c.outStream.println("> '"+inStreamer.clientName+"' joined chat.");
                     }
 
                 }
