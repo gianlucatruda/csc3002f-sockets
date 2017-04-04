@@ -1,5 +1,8 @@
 import java.io.*;
 import java.util.Scanner;
+import java.io.File;
+import java.io.FileInputStream;
+//import java.System;
 
 public class ChatClientChannel extends Thread {
 
@@ -14,6 +17,7 @@ public class ChatClientChannel extends Thread {
         ps = stream;
     }
 
+
     public void run() {
         if(dis == null) {
             // Writer mode
@@ -21,9 +25,26 @@ public class ChatClientChannel extends Thread {
             Scanner myScan = new Scanner(System.in);
             while(myScan.hasNextLine()) {
                 String msg = myScan.nextLine();
+                //to send file <file>file.jpg
+                if(msg.startsWith("<file>")){
+                  ps.write(msg);
+                  ps.flush();
+                  String filex=msg.substring(6,msg.length());
+                  File file=new File(filex);
+                  byte[] mybytearray = new byte[(int) file.length()];//create byte array of size
+                  BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));//create buffer stream of file
+                  //bis.read(mybytearray, 0, mybytearray.length);
+
+                  ps.write(mybytearray, 0, mybytearray.length);
+                  ps.flush();
+                }
+                else{
+
+
                 ps.println(msg);
                 ps.flush();
                 System.out.print("> ");
+              }
             }
 
         }

@@ -35,7 +35,15 @@ public class ChatServerChannel extends Thread {
             String readMsg = null;
             try {
                 while((readMsg = br.readLine()) != null) {
+                    if(readMsg.startsWith("<file>")){
+                        String filex=readMsg.substring(6,readMsg.length());
+                        filex="rcvd"+filex;
+                        BufferedOutputStream bis = new BufferedOutputStream();
+                      //  Image filex = (Bitmap)((new ImageConverter()).ConvertFrom(bis));
+                    }
+                    else{
                     System.out.println("Client: "+readMsg);
+                  }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
