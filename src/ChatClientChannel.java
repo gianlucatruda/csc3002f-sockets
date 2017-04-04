@@ -1,4 +1,7 @@
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class ChatClientChannel extends Thread {
@@ -28,8 +31,26 @@ public class ChatClientChannel extends Thread {
             Scanner myScan = new Scanner(System.in);
             while(myScan.hasNextLine()) {
                 String msg = myScan.nextLine();
-                ps.println(msg);
-                ps.flush();
+
+                if (msg.startsWith("<img>")) {
+                    File file = new File(msg.substring(5, msg.length()));
+                    byte[] bArray = new byte[(int) file.length()];
+                    try {
+                        FileInputStream fis = new FileInputStream(file);
+                        fis.read(bArray);
+
+
+                        ps.println("<img>"+bArray.length);
+                        ps.flush();
+                        ps.write(bArray, 0, bArray.length);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    ps.println(msg);
+                    ps.flush();
+                }
             }
         }
         else if(ps == null) {

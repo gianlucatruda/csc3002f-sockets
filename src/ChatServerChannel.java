@@ -1,4 +1,7 @@
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -48,6 +51,21 @@ public class ChatServerChannel extends Thread {
                     }
                     // If the <img> tag is used
                     else if (readMsg.startsWith("<img>")) {
+                        int byteCount = Integer.parseInt(readMsg.substring(5, readMsg.length()));
+                        System.out.println("> Receiving image from '"+clientName+"' ("+byteCount+" b)");
+
+                        try {
+                            byte[] bArray = new byte[byteCount];
+                            for (int i = 0; i < byteCount; i++) {
+                                bArray[i] = dis.readByte();
+                            }
+                            FileOutputStream fos = new FileOutputStream("received.png");
+                            fos.write(bArray);
+                            fos.close();
+                        }
+                        catch (Exception e) {
+                            System.out.println("Oh no...");
+                        }
 
                     }
                     // Regular message
