@@ -7,18 +7,17 @@ public class ChatServerHandler {
 
     public static void main(String[] args) throws InterruptedException {
         ArrayList<String> messages = new ArrayList<String>();
-        messages.add("Welcome to the chat!");
-        ChatConnection s1 = new ChatConnection("Alice", 4001, messages);
-        ChatConnection s2 = new ChatConnection("Bob", 4002, messages);
+        ChatConnection[] conns = new ChatConnection[8];
+
+        ChatConnection s1 = new ChatConnection("Alice", 4001, conns, messages);
+        ChatConnection s2 = new ChatConnection("Bob", 4002, conns, messages);
+
+        conns[0] = s1;
+        conns[1] = s2;
+
         s1.start();
         s2.start();
 
-        while(true) {
-            sleep(100);
-            messages.addAll(s1.getUndeliveredMessages().stream().collect(Collectors.toList()));
-            messages.addAll(s2.getUndeliveredMessages().stream().collect(Collectors.toList()));
-            //System.out.println("\r"+messages.toString());
-        }
 
     }
 }

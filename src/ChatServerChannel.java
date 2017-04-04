@@ -7,26 +7,24 @@ public class ChatServerChannel extends Thread {
     ArrayList<String> msgs;
     DataInputStream dis = null;
     PrintStream ps = null;
+    String clientName = "CLIENT";
+    ChatConnection[] connections;
 
-    public ChatServerChannel(DataInputStream stream, ArrayList<String> messages) {
+    public ChatServerChannel(DataInputStream stream, ArrayList<String> messages, ChatConnection[] conns) {
         dis = stream;
         msgs = messages;
+        connections = conns;
     }
 
-    public ChatServerChannel(PrintStream stream, ArrayList<String> messages) {
+    public ChatServerChannel(PrintStream stream, ArrayList<String> messages, ChatConnection[] conns) {
         ps = stream;
         msgs = messages;
+        connections = conns;
     }
 
     public void run() {
         if(dis == null) {
             // Writer mode
-            Scanner myScan = new Scanner(System.in);
-            while(myScan.hasNextLine()) {
-                String msg = myScan.nextLine();
-                ps.println(msg);
-                ps.flush();
-            }
 
         }
         else if(ps == null) {
@@ -35,7 +33,16 @@ public class ChatServerChannel extends Thread {
             String readMsg = null;
             try {
                 while((readMsg = br.readLine()) != null) {
-                    System.out.println("Client: "+readMsg);
+                    for(ChatConnection c : connections) {
+                        if (c != null) {
+                            if(c.outStream != null) {
+                                c.outStream.println(clientName+": "+readMsg);
+                            }
+
+                        }
+                    }
+
+                    System.out.println(clientName+": "+readMsg);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

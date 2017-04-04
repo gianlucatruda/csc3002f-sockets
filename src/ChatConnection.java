@@ -14,15 +14,18 @@ public class ChatConnection extends Thread {
     private String clientName = String.valueOf(Math.random()).substring(2,6);
     private ArrayList<String> unreads;
     private ArrayList<String> messages;
+    ChatConnection[] connections;
 
-    public ChatConnection(String name, int port, ArrayList<String> msgs) {
+    DataInputStream inStream;
+    PrintStream outStream;
+
+    public ChatConnection(String name, int port, ChatConnection[] conns, ArrayList<String> msgs) {
         PORTNUM = port;
         NAME = name;
         unreads = new ArrayList<String>();
         messages = msgs;
+        connections = conns;
     }
-
-    public ChatConnection(){};
 
     private ServerSocket listen(int port) {
         // Creating the server socket
@@ -105,18 +108,27 @@ public class ChatConnection extends Thread {
         System.out.println("Init server -\t"+NAME+":"+PORTNUM);
         ServerSocket listenSoc = listen(PORTNUM);
         Socket connection = createSocket(listenSoc);
-        DataInputStream inStream = openInputStream(connection);
-        PrintStream outStream = openOutputStream(connection);
+        inStream = openInputStream(connection);
+        outStream = openOutputStream(connection);
 
         if(inStream != null && outStream != null && connection != null) {
             System.out.println("'"+clientName+"' connected to "+NAME);
 
             // ChatClientChannel threads
-            ChatServerChannel inStreamer = new ChatServerChannel(inStream, unreads);
-            ChatServerChannel outStreamer = new ChatServerChannel(outStream, unreads);
+            ChatServerChannel inStreamer = new ChatServerChannel(inStream, unreads, connections);
+            ChatServerChannel outStreamer = new ChatServerChannel(outStream, unreads, connections);
             inStreamer.start();
             outStreamer.start();
 
+            for(ChatConnection c : connections) {
+                if (c != null && c != this) {
+                    if(c.outStream != null) {
+                        c.outStream.println("'"+clientName+"' connected to "+NAME);
+                    }
+
+                }
+            }
+            
             //TODO implement connection closing
             //closeSocket(connection, inStream, outStream);
             //System.out.println(NAME+": Connection to '"+clientName+"' was closed.");
