@@ -62,10 +62,10 @@ public class ChatServerChannel extends Thread {
                             }
 
                             //TODO if we don't want server to keep images, then comment out the following lines
-//                            FileOutputStream fos = new FileOutputStream(imageName);
-//                            fos.write(bArray);
-//                            fos.close();
-//                            System.out.println("> Image saved: "+imageName);
+                            FileOutputStream fos = new FileOutputStream(imageName);
+                            fos.write(bArray);
+                            fos.close();
+                            System.out.println("> Image saved: "+imageName);
                             //TODO END
 
                             for(ChatConnection c : connections) {
