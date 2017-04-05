@@ -82,7 +82,7 @@ public class ChatClient {
                 System.out.println("Could not activate I/O streams.");
             }
         } else {
-            System.out.println("Could not connection to server");
+            System.out.println("Could not establish connection to server");
         }
     }
 }

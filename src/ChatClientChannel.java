@@ -33,19 +33,32 @@ public class ChatClientChannel extends Thread {
                 String msg = myScan.nextLine();
 
                 if (msg.startsWith("<img>")) {
-                    File file = new File(msg.substring(5, msg.length()));
-                    byte[] bArray = new byte[(int) file.length()];
-                    try {
-                        FileInputStream fis = new FileInputStream(file);
-                        fis.read(bArray);
+                    String pathname = msg.substring(5, msg.length());
+                    if(!pathname.substring(pathname.length()-3,pathname.length()).equals("png")) {
+                        System.out.println("> NOTE: Currently, only .png files are supported.");
+                    } else {
+                        File file = new File(pathname);
+                        if(!file.exists()) {
+                            System.out.println("> ERROR: Could not find that image.");
+                        } else {
+                            byte[] bArray = new byte[(int) file.length()];
+                            try {
+                                ps.println("<img>"+bArray.length);
+                                ps.flush();
 
+                                FileInputStream fis = new FileInputStream(file);
+                                fis.read(bArray);
+                                fis.close();
+                                ps.write(bArray, 0, bArray.length);
 
-                        ps.println("<img>"+bArray.length);
-                        ps.flush();
-                        ps.write(bArray, 0, bArray.length);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                                System.out.println("> '"+pathname+"' sent.");
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
+
                 }
                 else {
                     ps.println(msg);
@@ -60,7 +73,26 @@ public class ChatClientChannel extends Thread {
             String readMsg = null;
             try {
                 while((readMsg = br.readLine()) != null) {
-                    System.out.println(readMsg);
+                    if (readMsg.startsWith("<img>")) {
+                        int byteCount = Integer.parseInt(readMsg.substring(5, readMsg.length()));
+                        System.out.println("> Receiving image (" + byteCount + " b)\n");
+                        String imageName = "received" + String.valueOf(Math.random()).substring(2, 6) + ".png";
+                        try {
+                            byte[] bArray = new byte[byteCount];
+                            for (int i = 0; i < byteCount; i++) {
+                                bArray[i] = dis.readByte();
+                            }
+                            FileOutputStream fos = new FileOutputStream(imageName);
+                            fos.write(bArray);
+                            fos.close();
+                            System.out.println("\n> Image saved: " + imageName);
+                        } catch (Exception e) {
+                            System.out.println("> ERROR: Could not receive message.");
+                        }
+                    }
+                    else {
+                        System.out.println(readMsg);
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
