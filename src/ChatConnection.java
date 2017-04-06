@@ -12,6 +12,7 @@ public class ChatConnection extends Thread {
     private int PORTNUM = 3456;
     private String NAME = "Alice";
     ChatConnection[] connections;
+    ArrayList<String> images;
 
     DataInputStream inStream;
     PrintStream outStream;
@@ -19,10 +20,11 @@ public class ChatConnection extends Thread {
     private ChatServerChannel inStreamer;
     private ChatServerChannel outStreamer;
 
-    public ChatConnection(String name, int port, ChatConnection[] conns, ArrayList<String> msgs) {
+    public ChatConnection(String name, int port, ChatConnection[] conns, ArrayList<String> imgs) {
         PORTNUM = port;
         NAME = name;
         connections = conns;
+        images = imgs;
     }
 
     private ServerSocket listen(int port) {
@@ -104,8 +106,8 @@ public class ChatConnection extends Thread {
         if(inStream != null && outStream != null && connection != null) {
 
             // ChatClientChannel threads
-            inStreamer = new ChatServerChannel(inStream, connections);
-            outStreamer = new ChatServerChannel(outStream,  connections);
+            inStreamer = new ChatServerChannel(inStream, connections, images);
+            outStreamer = new ChatServerChannel(outStream,  connections, images);
             inStreamer.start();
             outStreamer.start();
 

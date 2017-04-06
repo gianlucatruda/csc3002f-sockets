@@ -60,6 +60,10 @@ public class ChatClientChannel extends Thread {
                     }
 
                 }
+                else if (msg.startsWith("<get>")) {
+                    ps.println(msg);
+                    ps.flush();
+                }
                 else {
                     ps.println(msg);
                     ps.flush();
@@ -73,9 +77,14 @@ public class ChatClientChannel extends Thread {
             String readMsg = null;
             try {
                 while((readMsg = br.readLine()) != null) {
-                    if (readMsg.startsWith("<img>")) {
+                    //System.out.println("DEBUG: "+readMsg);
+                    if (readMsg.startsWith("<img-req>")) {
+                        int byteCount = Integer.parseInt(readMsg.substring(9, readMsg.length()));
+                        System.out.println("> Type <get> to download ("+(byteCount/1000)+"kB).");
+                    }
+                    else if (readMsg.startsWith("<img>")) {
                         int byteCount = Integer.parseInt(readMsg.substring(5, readMsg.length()));
-                        System.out.println("> Receiving image (" + byteCount + " b)\n");
+                        System.out.println("> Receiving image (" + byteCount + " b)");
                         String imageName = "received" + String.valueOf(Math.random()).substring(2, 6) + ".png";
                         try {
                             byte[] bArray = new byte[byteCount];
@@ -85,7 +94,7 @@ public class ChatClientChannel extends Thread {
                             FileOutputStream fos = new FileOutputStream(imageName);
                             fos.write(bArray);
                             fos.close();
-                            System.out.println("\n> Image saved: " + imageName);
+                            System.out.println("> Image saved: " + imageName);
                         } catch (Exception e) {
                             System.out.println("> ERROR: Could not receive message.");
                         }

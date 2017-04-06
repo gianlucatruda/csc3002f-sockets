@@ -11,16 +11,19 @@ public class ChatServerChannel extends Thread {
     DataInputStream dis = null;
     PrintStream ps = null;
     ChatConnection[] connections;
+    ArrayList<String> images;
     public String clientName = "ANON.";
 
-    public ChatServerChannel(DataInputStream stream, ChatConnection[] conns) {
+    public ChatServerChannel(DataInputStream stream, ChatConnection[] conns, ArrayList<String> imgs) {
         dis = stream;
         connections = conns;
+        images = imgs;
     }
 
-    public ChatServerChannel(PrintStream stream, ChatConnection[] conns) {
+    public ChatServerChannel(PrintStream stream, ChatConnection[] conns, ArrayList<String> imgs) {
         ps = stream;
         connections = conns;
+        images = imgs;
     }
 
     public void run() {
@@ -30,6 +33,17 @@ public class ChatServerChannel extends Thread {
         }
         else if(ps == null) {
             // Reader mode
+
+            for(ChatConnection c : connections) {
+                if (c != null) {
+                    if (c.outStream != null) {
+                        if (c.getClientName().equals(clientName)) {
+                            ps = c.outStream;
+                        }
+                    }
+                }
+            }
+
             BufferedReader br = new BufferedReader(new InputStreamReader(dis));
             String readMsg = null;
             try {
@@ -61,27 +75,23 @@ public class ChatServerChannel extends Thread {
                                 bArray[i] = dis.readByte();
                             }
 
-                            //TODO if we don't want server to keep images, then comment out the following lines
                             FileOutputStream fos = new FileOutputStream(imageName);
                             fos.write(bArray);
                             fos.close();
+                            images.add(imageName);
                             System.out.println("> Image saved: "+imageName);
-                            //TODO END
 
                             for(ChatConnection c : connections) {
                                 if (c != null) {
                                     if(c.outStream != null) {
                                         if(!c.getClientName().equals(clientName)) {
                                             try {
-                                                c.outStream.println("> '"+clientName+"' sent an image.");
-                                                c.outStream.println("<img>"+bArray.length);
+                                                c.outStream.println("> '"+clientName+"' sent you an image.");
+                                                c.outStream.println("<img-req>"+bArray.length);
                                                 c.outStream.flush();
-                                                c.outStream.write(bArray, 0, bArray.length);
-
-                                                System.out.println("> '"+imageName+"' sent.");
                                             }
                                             catch (Exception e) {
-                                                System.out.println("> ERROR: Could not on-send image!");
+                                                System.out.println("> ERROR: Could not forward image request!");
                                             }
 
                                         }
@@ -95,6 +105,27 @@ public class ChatServerChannel extends Thread {
                             System.out.println("> ERROR: Could not receive image!");
                         }
 
+                    }
+                    else if (readMsg.startsWith("<get>")) {
+                        String pathname = images.get(images.size()-1);
+                        System.out.println("> Sending '"+pathname+"' to '"+clientName+"'");
+                        File file = new File(pathname);
+                        byte[] bArray = new byte[(int) file.length()];
+
+                        try {
+                            ps.println("<img>" + bArray.length);
+                            ps.flush();
+
+                            FileInputStream fis = new FileInputStream(file);
+                            fis.read(bArray);
+                            fis.close();
+                            ps.write(bArray, 0, bArray.length);
+
+                            System.out.println("> '" + pathname + "' sent.");
+                        }
+                        catch (Exception e) {
+                            System.out.println("> ERROR: Could not on-send image!\n" + e);
+                        }
                     }
                     // Regular message
                     else {
