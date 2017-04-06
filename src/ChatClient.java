@@ -1,6 +1,7 @@
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class ChatClient {
     private static Socket openSocket(String name, int port) {
@@ -8,8 +9,7 @@ public class ChatClient {
         try {
             MyClient = new Socket(name, port);
             return MyClient;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.out.println(e);
             return null;
         }
@@ -20,8 +20,7 @@ public class ChatClient {
         try {
             input = new DataInputStream(myClient.getInputStream());
             return input;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.out.println(e);
             return null;
         }
@@ -32,8 +31,7 @@ public class ChatClient {
         try {
             output = new PrintStream(myClient.getOutputStream());
             return output;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.out.println(e);
             return null;
         }
@@ -44,30 +42,27 @@ public class ChatClient {
             output.close();
             input.close();
             myClient.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.out.println(e);
         }
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
         int PORTNUM = 4001;
-        String userName = "user"+String.valueOf(Math.random()).substring(2,6);
-        if(args.length == 2) {
+        String userName = "user" + String.valueOf(Math.random()).substring(2, 6);
+        if (args.length == 2) {
             PORTNUM = Integer.parseInt(args[0]);
             userName = args[1];
-        }
-        else if (args.length == 1) {
+        } else if (args.length == 1) {
             PORTNUM = Integer.parseInt(args[0]);
         }
         System.out.println("Client Awake");
         Socket myConnection = openSocket("localhost", PORTNUM);
-        if(myConnection != null) { //TODO tidy
+        if (myConnection != null) { //TODO tidy
             System.out.println("Connection established");
             DataInputStream ins = openInputStream(myConnection);
             PrintStream outs = openOutputStream(myConnection);
-            if(ins != null && outs != null) {  //TODO tidy
-                //System.out.println("I/O streams active.");
+            if (ins != null && outs != null) {  //TODO tidy
 
                 // ChatClientChannel threads
                 ChatClientChannel inStreamer = new ChatClientChannel(ins, userName);

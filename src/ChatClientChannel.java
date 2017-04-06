@@ -1,7 +1,4 @@
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class ChatClientChannel extends Thread {
@@ -21,29 +18,29 @@ public class ChatClientChannel extends Thread {
     }
 
     public void run() {
-        if(dis == null) {
+        if (dis == null) {
             // Writer mode
 
             // Tell server the username
-            ps.println("<name>"+userName);
+            ps.println("<name>" + userName);
             ps.flush();
 
             Scanner myScan = new Scanner(System.in);
-            while(myScan.hasNextLine()) {
+            while (myScan.hasNextLine()) {
                 String msg = myScan.nextLine();
 
                 if (msg.startsWith("<img>")) {
                     String pathname = msg.substring(5, msg.length());
-                    if(!pathname.substring(pathname.length()-3,pathname.length()).equals("png")) {
+                    if (!pathname.substring(pathname.length() - 3, pathname.length()).equals("png")) {
                         System.out.println("> NOTE: Currently, only .png files are supported.");
                     } else {
                         File file = new File(pathname);
-                        if(!file.exists()) {
+                        if (!file.exists()) {
                             System.out.println("> ERROR: Could not find that image.");
                         } else {
                             byte[] bArray = new byte[(int) file.length()];
                             try {
-                                ps.println("<img>"+bArray.length);
+                                ps.println("<img>" + bArray.length);
                                 ps.flush();
 
                                 FileInputStream fis = new FileInputStream(file);
@@ -51,7 +48,7 @@ public class ChatClientChannel extends Thread {
                                 fis.close();
                                 ps.write(bArray, 0, bArray.length);
 
-                                System.out.println("> '"+pathname+"' sent.");
+                                System.out.println("> '" + pathname + "' sent.");
 
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -59,30 +56,26 @@ public class ChatClientChannel extends Thread {
                         }
                     }
 
-                }
-                else if (msg.startsWith("<get>")) {
+                } else if (msg.startsWith("<get>")) {
                     ps.println(msg);
                     ps.flush();
-                }
-                else {
+                } else {
                     ps.println(msg);
                     ps.flush();
                 }
             }
-        }
-        else if(ps == null) {
+        } else if (ps == null) {
             // Reader mode
             BufferedReader br = new BufferedReader(new InputStreamReader(dis));
 
             String readMsg = null;
             try {
-                while((readMsg = br.readLine()) != null) {
+                while ((readMsg = br.readLine()) != null) {
                     //System.out.println("DEBUG: "+readMsg);
                     if (readMsg.startsWith("<img-req>")) {
                         int byteCount = Integer.parseInt(readMsg.substring(9, readMsg.length()));
-                        System.out.println("> Type <get> to download ("+(byteCount/1000)+"kB).");
-                    }
-                    else if (readMsg.startsWith("<img>")) {
+                        System.out.println("> Type <get> to download (" + (byteCount / 1000) + "kB).");
+                    } else if (readMsg.startsWith("<img>")) {
                         int byteCount = Integer.parseInt(readMsg.substring(5, readMsg.length()));
                         System.out.println("> Receiving image (" + byteCount + " b)");
                         String imageName = "received" + String.valueOf(Math.random()).substring(2, 6) + ".png";
@@ -98,8 +91,7 @@ public class ChatClientChannel extends Thread {
                         } catch (Exception e) {
                             System.out.println("> ERROR: Could not receive message.");
                         }
-                    }
-                    else {
+                    } else {
                         System.out.println(readMsg);
                     }
                 }
@@ -108,7 +100,7 @@ public class ChatClientChannel extends Thread {
             }
 
         } else {
-            // TODO Something ain't right!
+            System.out.println("An unknown error occurred.");
         }
     }
 

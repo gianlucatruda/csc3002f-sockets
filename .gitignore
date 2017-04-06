@@ -13,3 +13,5 @@ src/*.png
 hs_err_pid*
 /csc3002f-sockets.iml
 /src/sample.png
+/out/production/csc3002f-sockets/sample.png
+/out/production/csc3002f-sockets/troll.png

@@ -1,11 +1,10 @@
-import javax.print.attribute.standard.MediaSize;
-import javax.sound.sampled.Port;
-import java.io.*;
-import java.lang.reflect.Array;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Random;
+
 
 public class ChatConnection extends Thread {
 
@@ -46,8 +45,7 @@ public class ChatConnection extends Thread {
         try {
             clientSocket = service.accept(); // Not sure about this...
             return clientSocket;
-        }
-        catch ( IOException e ) {
+        } catch (IOException e) {
             System.out.println(e);
             return null;
         }
@@ -57,11 +55,10 @@ public class ChatConnection extends Thread {
     private void closeSocket(Socket clientSocket, DataInputStream input, PrintStream output) {
         // close the input and output streams and the socket
         try {
-            output.close ();
-            input.close ();
-            clientSocket.close ();
-        }
-        catch ( IOException e ) {
+            output.close();
+            input.close();
+            clientSocket.close();
+        } catch (IOException e) {
             System.out.println(e);
         }
     }
@@ -72,8 +69,7 @@ public class ChatConnection extends Thread {
         try {
             input = new DataInputStream(clientSocket.getInputStream());
             return input;
-        }
-        catch ( IOException e ) {
+        } catch (IOException e) {
             System.out.println(e);
             return null;
         }
@@ -85,8 +81,7 @@ public class ChatConnection extends Thread {
         try {
             output = new PrintStream(clientSocket.getOutputStream());
             return output;
-        }
-        catch ( IOException e ) {
+        } catch (IOException e) {
             System.out.println(e);
             return null;
         }
@@ -97,35 +92,35 @@ public class ChatConnection extends Thread {
     }
 
     public void run() {
-        System.out.println("Init. server -\t"+NAME+":"+PORTNUM);
+        System.out.println("Init. server -\t" + NAME + ":" + PORTNUM);
         ServerSocket listenSoc = listen(PORTNUM);
         Socket connection = createSocket(listenSoc);
         inStream = openInputStream(connection);
         outStream = openOutputStream(connection);
 
-        if(inStream != null && outStream != null && connection != null) {
+        if (inStream != null && outStream != null && connection != null) {
 
             // ChatClientChannel threads
             inStreamer = new ChatServerChannel(inStream, connections, images);
-            outStreamer = new ChatServerChannel(outStream,  connections, images);
+            outStreamer = new ChatServerChannel(outStream, connections, images);
             inStreamer.start();
             outStreamer.start();
 
-            System.out.println("> '"+inStreamer.clientName+"' connected.");
+            System.out.println("> '" + inStreamer.clientName + "' connected.");
 
-            for(ChatConnection c : connections) {
+            for (ChatConnection c : connections) {
                 if (c != null && c != this) {
-                    if(c.outStream != null) {
-                        c.outStream.println("> '"+inStreamer.clientName+"' joined chat.");
+                    if (c.outStream != null) {
+                        c.outStream.println("> '" + inStreamer.clientName + "' joined chat.");
                     }
 
                 }
             }
 
-            for(ChatConnection c : connections) {
+            for (ChatConnection c : connections) {
                 if (c != null && c != this) {
-                    if(c.outStream != null) {
-                        this.outStream.println("> '"+c.getClientName()+"' is currently online.");
+                    if (c.outStream != null) {
+                        this.outStream.println("> '" + c.getClientName() + "' is currently online.");
                     }
 
                 }
@@ -137,17 +132,11 @@ public class ChatConnection extends Thread {
             //System.out.println(NAME+": Connection to '"+clientName+"' was closed.");
 
         } else {
-            System.out.println(NAME+": Could not establish a proper connection.");
+            System.out.println(NAME + ": Could not establish a proper connection.");
             System.exit(6);
         }
 
     }
-
-
-
-
-
-
 
 
 }
